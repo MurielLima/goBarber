@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback} from 'react';
 import {View} from 'react-native';
+import { useNavigation} from 'react-router-dom';
 import { useAuth } from '../../hook/auth';
 import api from '../../services/api';
-import { Header, HeaderTitle, UserName, ProfileButton, UserAvatar } from './styles';
+import { Container, Header, HeaderTitle, UserName, ProfileButton, UserAvatar, ProvidersList, ProvidersListTitle, ProviderContainer, ProviderAvatar, ProviderInfo, ProviderMeta, ProviderMetaText} from './styles';
 
-interface Provider{
+export interface Provider{
   id:string;
   name:string;
 }
@@ -21,8 +22,10 @@ useEffect(()=>{
 },[]);
 
 const navigateProfile = useCallback(()=>{
-navigate('Profile');
-
+  navigate('Profile');
+},[navigate]);
+const navigateToCreateAppointment = useCallback((providerId: string)=>{
+navigate('CreateAppointment', {providerId});
 },[navigate]);
 
   return (<Container>
@@ -31,10 +34,34 @@ navigate('Profile');
         Bem vindo, {"\n"}
         <UserName>{user.name}</UserName>
       </HeaderTitle>
-      <ProfileButton onPress={()=>{}}>
+      <ProfileButton onPress={navigateProfile}>
        <UserAvatar source={{uri:user.avatar_url}}/>
        </ProfileButton>
     </Header>
+    <ProvidersList
+    data={providers}
+    keyExtractor={(provider) => provider.id}
+    ListHeaderComponent={
+      <ProvidersListTitle>Cabeleireiros</ProvidersListTitle>
+    }
+    renderItem={({item:provider})=>(
+      <ProviderContainer onPress={()=>navigateToCreateAppointment(provider.id)}>
+        <ProviderAvatar source={{uri:provider.avatar_url}}/>
+
+        <ProviderInfo>
+          <ProviderName>{provider.name}</ProviderName>
+          
+          <ProviderMeta>
+            <Icon name="calendar" size={14} color="#ff9000"/>
+            <ProviderMetaText>Segunda à sexta</ProviderMetaText>
+          </ProviderMeta>
+
+        </ProviderInfo>
+      </ProviderContainer>
+    )}
+    >
+
+    </ProvidersList>
   </Container>);
 };
 export default Dashboard;
